@@ -4,6 +4,161 @@
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+// ───────────────────────────────────────────────────────────────────
+// CLI mode: simple commands (list, show, open-blob)
+// ───────────────────────────────────────────────────────────────────
+if (php_sapi_name() === 'cli') {
+    // Build command list
+    $argv = $_SERVER['argv'];
+    array_shift($argv); // remove script name
+    $cmd = array_shift($argv) ?: 'help';
+    $configFile = __DIR__ . '/vortextz-terminal-config.txt';
+    $rawCmds = readCommandSequence($configFile);
+    if (isset($rawCmds['error'])) {
+        fwrite(STDERR, "Error: {$rawCmds['error']}\n");
+        exit(1);
+    }
+    $commands = [];
+    foreach ($rawCmds as $raw) {
+        $p = parseCommand($raw);
+        if (isset($p['error'])) continue;
+        $res = processCode($p);
+        $commands[] = ['parsed' => $p, 'result' => $res];
+    }
+    switch ($cmd) {
+        case 'list':
+            foreach ($commands as $i => $item) {
+                $p   = $item['parsed'];
+                $idx = $i + 1;
+                $in  = "{$p['inputDirectory']}/{$p['inputFileBaseName']}.txt";
+                $out = "{$p['outputDirectory']}/{$p['outputFileBaseName']}.txt";
+                printf("%2d. %s -> %s (rows %d-%d, cols %d-%d)\n",
+                    $idx, $in, $out,
+                    $p['initialRow'], $p['finalRow'],
+                    $p['initialColumn'], $p['finalColumn']
+                );
+            }
+            exit(0);
+        case 'show':
+            if (count($argv) < 1 || !is_numeric($argv[0])) {
+                fwrite(STDERR, "Usage: php heaven.php show <index>\n");
+                exit(1);
+            }
+            $num = (int)$argv[0];
+            if ($num < 1 || $num > count($commands)) {
+                fwrite(STDERR, "Error: invalid index $num\n");
+                exit(1);
+            }
+            $entry = $commands[$num - 1];
+            if (isset($entry['result']['error'])) {
+                fwrite(STDERR, "Error: {$entry['result']['error']}\n");
+                exit(1);
+            }
+            echo $entry['result']['code'];
+            exit(0);
+        case 'open-blob':
+            if (count($argv) < 1 || !is_numeric($argv[0])) {
+                fwrite(STDERR, "Usage: php heaven.php open-blob <index>\n");
+                exit(1);
+            }
+            $num = (int)$argv[0];
+            if ($num < 1 || $num > count($commands)) {
+                fwrite(STDERR, "Error: invalid index $num\n");
+                exit(1);
+            }
+            $entry = $commands[$num - 1];
+            if (isset($entry['result']['error'])) {
+                fwrite(STDERR, "Error: {$entry['result']['error']}\n");
+                exit(1);
+            }
+            // Prepare HTML for blob
+            $p    = $entry['parsed'];
+            $code = $entry['result']['code'];
+            $lang = detectLanguage($code);
+            if ($lang === 'javascript') {
+                $escaped = json_encode($code);
+                $title   = "JS Execution {$num}";
+                $html    = "<!DOCTYPE html>\n<html>\n<head><title>{$title}</title></head>\n<body>\n<script>\ntry{eval({$escaped});}catch(e){console.error(e);}\n</script>\n</body>\n</html>";
+            } elseif ($lang === 'html') {
+                $html = $code;
+            } else {
+                $escaped = htmlspecialchars($code, ENT_QUOTES);
+                $title   = "Code Preview {$num}";
+                $html    = "<!DOCTYPE html>\n<html>\n<head><title>{$title}</title></head>\n<body>\n<pre>{$escaped}</pre>\n</body>\n</html>";
+            }
+            // Write to temp file and open
+            $tmpFile = tempnam(sys_get_temp_dir(), 'heaven_') . '.html';
+            file_put_contents($tmpFile, $html);
+            $os = PHP_OS_FAMILY;
+            if ($os === 'Windows') {
+                pclose(popen("start \"\" " . escapeshellarg($tmpFile), 'r'));
+            } elseif ($os === 'Darwin') {
+                exec("open " . escapeshellarg($tmpFile));
+            } else {
+                exec("xdg-open " . escapeshellarg($tmpFile));
+            }
+            echo "Opened {$tmpFile}\n";
+            exit(0);
+        default:
+            echo "Usage: php heaven.php <command>\n";
+            echo "Commands:\n  list               List commands\n  show <index>       Show code for a command\n";
+            echo "  open-blob <index>  Open code in browser as HTML\n";
+            exit(0);
+    }
+}
+// ───────────────────────────────────────────────────────────────────
+// CLI mode: simple commands (list, show)
+// ───────────────────────────────────────────────────────────────────
+if (php_sapi_name() === 'cli') {
+    $argv = $_SERVER['argv'];
+    array_shift($argv); // remove script name
+    $cmd = array_shift($argv) ?: 'help';
+    $configFile = __DIR__ . '/vortextz-terminal-config.txt';
+    $rawCmds = readCommandSequence($configFile);
+    if (isset($rawCmds['error'])) {
+        fwrite(STDERR, "Error: {$rawCmds['error']}\n");
+        exit(1);
+    }
+    $commands = [];
+    foreach ($rawCmds as $raw) {
+        $p = parseCommand($raw);
+        if (isset($p['error'])) continue;
+        $res = processCode($p);
+        $commands[] = ['parsed' => $p, 'result' => $res];
+    }
+    switch ($cmd) {
+        case 'list':
+            foreach ($commands as $i => $item) {
+                $p = $item['parsed'];
+                $idx = $i + 1;
+                $in  = "{$p['inputDirectory']}/{$p['inputFileBaseName']}.txt";
+                $out = "{$p['outputDirectory']}/{$p['outputFileBaseName']}.txt";
+                printf("%2d. %s -> %s (rows %d-%d, cols %d-%d)\n",
+                    $idx, $in, $out,
+                    $p['initialRow'], $p['finalRow'],
+                    $p['initialColumn'], $p['finalColumn']
+                );
+            }
+            exit(0);
+        case 'show':
+            $num = isset($argv[0]) ? (int)$argv[0] : 0;
+            if ($num < 1 || $num > count($commands)) {
+                fwrite(STDERR, "Usage: php heaven.php show <index>\n");
+                exit(1);
+            }
+            $entry = $commands[$num - 1];
+            if (isset($entry['result']['error'])) {
+                fwrite(STDERR, "Error: {$entry['result']['error']}\n");
+                exit(1);
+            }
+            echo $entry['result']['code'];
+            exit(0);
+        default:
+            echo "Usage: php heaven.php <command>\n";
+            echo "Commands:\n  list           List commands\n  show <index>   Show code for a command\n";
+            exit(0);
+    }
+}
 
 /* ─────────────────────────────────────────────────────────
    Helper Functions

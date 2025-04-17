@@ -76,8 +76,8 @@ function verifyTwoFactorCode(string $username, string $code): bool {
     // In a real application, use a proper TOTP library
     // This is a simplified example for demonstration
     $twoFactorSecrets = [
-        'admin' => '090210', // Should be securely stored in production
-        'editor' => '090210'
+        'admin' => '123456', // Should be securely stored in production
+        'editor' => '123456'
     ];
     
     if (!isset($twoFactorSecrets[$username])) {
@@ -86,18 +86,18 @@ function verifyTwoFactorCode(string $username, string $code): bool {
     
     // Simple verification (for demonstration only)
     // In production, use a library like OTPHP for proper TOTP validation
-    return $code === '090210';
+    return $code === '123456';
 }
 
 // User database (in a real application, use a proper database)
 $users = [
     'admin' => [
-        'password' => password_hash('00EITA00*', PASSWORD_DEFAULT),
+        'password' => password_hash('password', PASSWORD_DEFAULT),
         'role' => 'admin',
         'twoFactor' => true
     ],
     'editor' => [
-        'password' => password_hash('00EITA00', PASSWORD_DEFAULT),
+        'password' => password_hash('password', PASSWORD_DEFAULT),
         'role' => 'editor',
         'twoFactor' => false
     ]
