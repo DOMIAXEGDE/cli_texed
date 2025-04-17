@@ -1,0 +1,1504 @@
+1
+<!DOCTYPE html>
+2
+<html lang="en">
+3
+	<head>
+4
+		<meta charset="UTF-8">
+5
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+6
+		<title>3D Line Configuration Generator</title>
+7
+		<style>
+8
+			/* Bespin 1970s Computer Theme */
+9
+			:root {
+10
+				--main-bg: #2a211c;
+11
+				--panel-bg: #171210;
+12
+				--text-color: #ffb54d;
+13
+				--highlight: #f37735;
+14
+				--accent: #cc723d;
+15
+				--dark-accent: #6e4631;
+16
+				--button-bg: #cc723d;
+17
+				--button-hover: #f37735;
+18
+				--console-bg: #151211;
+19
+				--console-text: #ffb080;
+20
+				--progress-bar: #f37735;
+21
+				--font-mono: 'Courier New', monospace;
+22
+			}
+23
+			body {
+24
+				font-family: var(--font-mono);
+25
+				line-height: 1.6;
+26
+				color: var(--text-color);
+27
+				background-color: var(--main-bg);
+28
+				margin: 0;
+29
+				padding: 20px;
+30
+				background-image:
+31
+					radial-gradient(rgba(255, 181, 77, 0.05) 2px, transparent 2px),
+32
+					radial-gradient(rgba(255, 181, 77, 0.03) 2px, transparent 2px);
+33
+				background-size: 50px 50px;
+34
+				background-position: 0 0, 25px 25px;
+35
+				max-width: 1200px;
+36
+				margin: 0 auto;
+37
+			}
+38
+			header {
+39
+				text-align: center;
+40
+				margin-bottom: 30px;
+41
+				padding-bottom: 20px;
+42
+				border-bottom: 1px solid var(--dark-accent);
+43
+			}
+44
+			h1,
+45
+			h2 {
+46
+				color: var(--highlight);
+47
+				text-transform: uppercase;
+48
+				letter-spacing: 2px;
+49
+				text-shadow: 0 0 5px rgba(243, 119, 53, 0.5);
+50
+			}
+51
+			h1 {
+52
+				font-size: 28px;
+53
+			}
+54
+			h2 {
+55
+				font-size: 20px;
+56
+				border-bottom: 1px solid var(--dark-accent);
+57
+				padding-bottom: 10px;
+58
+			}
+59
+			.container {
+60
+				display: flex;
+61
+				flex-wrap: wrap;
+62
+				gap: 20px;
+63
+			}
+64
+			.parameters,
+65
+			.output-section {
+66
+				flex: 1;
+67
+				min-width: 300px;
+68
+				background-color: var(--panel-bg);
+69
+				padding: 20px;
+70
+				border-radius: 5px;
+71
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.5),
+72
+					inset 0 0 3px var(--accent);
+73
+				border: 1px solid var(--dark-accent);
+74
+			}
+75
+			.output-section {
+76
+				flex: 2;
+77
+				min-width: 400px;
+78
+			}
+79
+			.form-group {
+80
+				margin-bottom: 15px;
+81
+			}
+82
+			label {
+83
+				display: block;
+84
+				margin-bottom: 5px;
+85
+				font-weight: bold;
+86
+				color: var(--highlight);
+87
+			}
+88
+			input,
+89
+			select {
+90
+				width: 100%;
+91
+				padding: 8px;
+92
+				background-color: var(--console-bg);
+93
+				color: var(--console-text);
+94
+				border: 1px solid var(--dark-accent);
+95
+				border-radius: 3px;
+96
+				box-sizing: border-box;
+97
+				font-family: var(--font-mono);
+98
+			}
+99
+			input:focus,
+100
+			select:focus {
+101
+				outline: none;
+102
+				border-color: var(--highlight);
+103
+				box-shadow: 0 0 5px var(--accent);
+104
+			}
+105
+			button {
+106
+				background-color: var(--button-bg);
+107
+				color: #000;
+108
+				font-weight: bold;
+109
+				padding: .8em 1.5em;
+110
+				border: none;
+111
+				border-radius: 3px;
+112
+				cursor: pointer;
+113
+				font-size: 14px;
+114
+				margin-top: 10px;
+115
+				text-transform: uppercase;
+116
+				letter-spacing: 1px;
+117
+				box-shadow: 0 3px 0 var(--dark-accent);
+118
+				transition: all 0.2s;
+119
+				font-family: var(--font-mono);
+120
+			}
+121
+			button:hover {
+122
+				background-color: var(--button-hover);
+123
+				transform: translateY(-2px);
+124
+				box-shadow: 0 5px 0 var(--dark-accent);
+125
+			}
+126
+			button:active {
+127
+				transform: translateY(1px);
+128
+				box-shadow: 0 2px 0 var(--dark-accent);
+129
+			}
+130
+			button:disabled {
+131
+				background-color: var(--dark-accent);
+132
+				color: rgba(255, 255, 255, 0.5);
+133
+				cursor: not-allowed;
+134
+				transform: none;
+135
+				box-shadow: none;
+136
+			}
+137
+			.buttons-group {
+138
+				display: flex;
+139
+				gap: 10px;
+140
+				flex-wrap: wrap;
+141
+			}
+142
+			.progress-container {
+143
+				margin-top: 20px;
+144
+				display: none;
+145
+				border: 1px solid var(--dark-accent);
+146
+				padding: 15px;
+147
+				border-radius: 3px;
+148
+				background-color: rgba(0, 0, 0, 0.2);
+149
+			}
+150
+			.progress-bar {
+151
+				height: 20px;
+152
+				background-color: var(--panel-bg);
+153
+				border-radius: 3px;
+154
+				margin-bottom: 10px;
+155
+				overflow: hidden;
+156
+				border: 1px solid var(--dark-accent);
+157
+			}
+158
+			.progress {
+159
+				height: 100%;
+160
+				background-color: var(--progress-bar);
+161
+				width: 0%;
+162
+				transition: width 0.3s;
+163
+				background-image: linear-gradient(
+164
+					45deg,
+165
+					rgba(255, 255, 255, .1) 25%,
+166
+					transparent 25%,
+167
+					transparent 50%,
+168
+					rgba(255, 255, 255, .1) 50%,
+169
+					rgba(255, 255, 255, .1) 75%,
+170
+					transparent 75%,
+171
+					transparent
+172
+				);
+173
+				background-size: 20px 20px;
+174
+				animation: progress-animation 1s linear infinite;
+175
+			}
+176
+			@keyframes progress-animation {
+177
+				0% {
+178
+					background-position: 0 0;
+179
+				}
+180
+				100% {
+181
+					background-position: 20px 0;
+182
+				}
+183
+			}
+184
+			#progressText,
+185
+			#statusText {
+186
+				color: var(--console-text);
+187
+				font-size: 14px;
+188
+			}
+189
+			#outputText {
+190
+				height: 400px;
+191
+				overflow: auto;
+192
+				padding: 15px;
+193
+				background-color: var(--console-bg);
+194
+				border: 1px solid var(--dark-accent);
+195
+				border-radius: 3px;
+196
+				font-family: var(--font-mono);
+197
+				white-space: pre-wrap;
+198
+				margin-top: 15px;
+199
+				color: var(--console-text);
+200
+				font-size: 14px;
+201
+				box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+202
+			}
+203
+			.log {
+204
+				margin-top: 20px;
+205
+				padding: 15px;
+206
+				background-color: var(--console-bg);
+207
+				border: 1px solid var(--dark-accent);
+208
+				border-radius: 3px;
+209
+				max-height: 150px;
+210
+				overflow: auto;
+211
+				font-size: 14px;
+212
+			}
+213
+			.log div {
+214
+				margin-bottom: 5px;
+215
+				padding-bottom: 5px;
+216
+				border-bottom: 1px dotted var(--dark-accent);
+217
+			}
+218
+			.status {
+219
+				font-weight: bold;
+220
+				margin-bottom: 10px;
+221
+				color: var(--highlight);
+222
+			}
+223
+			.alert {
+224
+				padding: 10px;
+225
+				background-color: rgba(243, 119, 53, 0.2);
+226
+				color: var(--highlight);
+227
+				border-radius: 3px;
+228
+				margin-bottom: 10px;
+229
+				border-left: 3px solid var(--highlight);
+230
+			}
+231
+			/* CRT Monitor Effect */
+232
+			#outputText::before {
+233
+				content: "";
+234
+				display: block;
+235
+				position: absolute;
+236
+				top: 0;
+237
+				left: 0;
+238
+				right: 0;
+239
+				bottom: 0;
+240
+				background: linear-gradient(
+241
+					rgba(18, 16, 16, 0) 50%,
+242
+					rgba(0, 0, 0, 0.25) 50%
+243
+				);
+244
+				background-size: 100% 4px;
+245
+				z-index: 2;
+246
+				pointer-events: none;
+247
+				opacity: 0.15;
+248
+			}
+249
+			#outputText {
+250
+				position: relative;
+251
+			}
+252
+			/* Scan Line Animation */
+253
+			@keyframes scanline {
+254
+				0% {
+255
+					transform: translateY(0);
+256
+				}
+257
+				100% {
+258
+					transform: translateY(100%);
+259
+				}
+260
+			}
+261
+			#outputText::after {
+262
+				content: "";
+263
+				position: absolute;
+264
+				top: 0;
+265
+				left: 0;
+266
+				right: 0;
+267
+				height: 5px;
+268
+				background: rgba(255, 181, 77, 0.2);
+269
+				z-index: 2;
+270
+				animation: scanline 6s linear infinite;
+271
+				pointer-events: none;
+272
+			}
+273
+			/* Terminal Cursor Animation */
+274
+			@keyframes cursor-blink {
+275
+				0%,
+276
+				50% {
+277
+					opacity: 0;
+278
+				}
+279
+				50.1%,
+280
+				100% {
+281
+					opacity: 1;
+282
+				}
+283
+			}
+284
+			.cursor-blink {
+285
+				display: inline-block;
+286
+				width: 10px;
+287
+				height: 14px;
+288
+				background: var(--console-text);
+289
+				margin-left: 2px;
+290
+				animation: cursor-blink 1s infinite;
+291
+				vertical-align: middle;
+292
+			}
+293
+			@media (max-width: 768px) {
+294
+				.container {
+295
+					flex-direction: column;
+296
+				}
+297
+				button {
+298
+					width: 100%;
+299
+					margin-bottom: 10px;
+300
+				}
+301
+			}
+302
+		</style>
+303
+	</head>
+304
+	<body>
+305
+		<header>
+306
+			<h1>* 3D Line Configuration Generator *</h1>
+307
+			<p>SYSTEM V2.03 - SPATIAL COORDINATES PROTOCOL</p>
+308
+		</header>
+309
+		<div class="container">
+310
+			<div class="parameters">
+311
+				<h2>// Input Parameters</h2>
+312
+				<div class="form-group">
+313
+					<label for="numLines">NUMBER OF LINES:</label>
+314
+					<input type="number" id="numLines" min="2" value="2">
+315
+				</div>
+316
+				<div class="form-group">
+317
+					<label for="maxConfigs">MAXIMUM CONFIGURATIONS:</label>
+318
+					<input type="number" id="maxConfigs" min="1" value="10">
+319
+				</div>
+320
+				<div class="form-group">
+321
+					<label for="coeffValues">COEFFICIENT VALUES:</label>
+322
+					<input type="text" id="coeffValues" value="0,1,2">
+323
+				</div>
+324
+				<div class="form-group">
+325
+					<label for="startIndex">STARTING INDEX:</label>
+326
+					<input type="number" id="startIndex" min="0" value="0">
+327
+				</div>
+328
+				<div class="form-group">
+329
+					<label for="maxIterations">MAX ITERATIONS:</label>
+330
+					<input type="number" id="maxIterations" min="1000" value="1000000">
+331
+				</div>
+332
+				<div class="buttons-group">
+333
+					<button id="generateBtn">GENERATE</button>
+334
+					<button id="stopBtn" disabled>TERMINATE</button>
+335
+					<button id="downloadBtn" disabled>SAVE DATA</button>
+336
+				</div>
+337
+				<div class="progress-container" id="progressContainer">
+338
+					<div class="status" id="statusText">COMPUTING SPATIAL COORDINATES...</div>
+339
+					<div class="progress-bar">
+340
+						<div class="progress" id="progressBar"></div>
+341
+					</div>
+342
+					<div id="progressText">0%</div>
+343
+				</div>
+344
+			</div>
+345
+			<div class="output-section">
+346
+				<h2>// System Output</h2>
+347
+				<div id="outputText">READY.
+348
+					<span class="cursor-blink"></span>
+349
+				</div>
+350
+				<div class="log" id="logSection">
+351
+					<div>SYSTEM INITIALIZED</div>
+352
+					<div>AWAITING COMMAND INPUT...</div>
+353
+				</div>
+354
+			</div>
+355
+		</div>
+356
+		<script>
+357
+			/* -------------------------------------------------------
+358
+			   MATRIX OPERATIONS FOR 3D LINE CALCULATIONS
+359
+			------------------------------------------------------- */
+360
+			class Matrix {
+361
+				static subtract(A, B) {
+362
+					const rows = A.length;
+363
+					const cols = A[0].length;
+364
+					const result = Array(rows).fill().map(() => Array(cols).fill(0));
+365
+					for (let i = 0; i < rows; i++) {
+366
+						for (let j = 0; j < cols; j++) {
+367
+							result[i][j] = A[i][j] - B[i][j];
+368
+						}
+369
+					}
+370
+					return result;
+371
+				}
+372
+				static multiply(A, B) {
+373
+					const rowsA = A.length;
+374
+					const colsA = A[0].length;
+375
+					const rowsB = B.length;
+376
+					const colsB = B[0].length;
+377
+					if (colsA !== rowsB) throw new Error("Matrix dimensions don't match for multiplication");
+378
+					const result = Array(rowsA).fill().map(() => Array(colsB).fill(0));
+379
+					for (let i = 0; i < rowsA; i++) {
+380
+						for (let j = 0; j < colsB; j++) {
+381
+							for (let k = 0; k < colsA; k++) {
+382
+								result[i][j] += A[i][k] * B[k][j];
+383
+							}
+384
+						}
+385
+					}
+386
+					return result;
+387
+				}
+388
+				static transpose(A) {
+389
+					const rows = A.length;
+390
+					const cols = A[0].length;
+391
+					const result = Array(cols).fill().map(() => Array(rows).fill(0));
+392
+					for (let i = 0; i < rows; i++) {
+393
+						for (let j = 0; j < cols; j++) {
+394
+							result[j][i] = A[i][j];
+395
+						}
+396
+					}
+397
+					return result;
+398
+				}
+399
+				static inverse2x2(A) {
+400
+					const det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+401
+					if (Math.abs(det) < 1e-10) throw new Error("Matrix is singular");
+402
+					return [
+403
+						[A[1][1] / det, -A[0][1] / det],
+404
+						[-A[1][0] / det, A[0][0] / det]
+405
+					];
+406
+				}
+407
+				static round(matrix, decimals = 5) {
+408
+					const factor = 10 ** decimals;
+409
+					return matrix.map(row =>
+410
+						row.map(val => Math.round(val * factor) / factor)
+411
+					);
+412
+				}
+413
+			}
+414
+			/* -------------------------------------------------------
+415
+			   VECTOR / GEOMETRY UTILITIES
+416
+			------------------------------------------------------- */
+417
+			function crossProduct(vec1, vec2) {
+418
+				return [
+419
+					vec1[1] * vec2[2] - vec1[2] * vec2[1],
+420
+					vec1[2] * vec2[0] - vec1[0] * vec2[2],
+421
+					vec1[0] * vec2[1] - vec1[1] * vec2[0]
+422
+				];
+423
+			}
+424
+			function isLinearlyIndependent(vec1, vec2) {
+425
+				const cross = crossProduct(vec1, vec2);
+426
+				return cross.some(comp => Math.abs(comp) > 1e-10);
+427
+			}
+428
+			/* -------------------------------------------------------
+429
+			   INTERSECTION OF TWO 3D LINES DEFINED BY TWO PLANES EACH
+430
+			------------------------------------------------------- */
+431
+			function findIntersection(line1Eq1, line1Eq2, line2Eq1, line2Eq2) {
+432
+				/* --- extract normals --- */
+433
+				const n1 = line1Eq1.slice(0, 3);
+434
+				const n2 = line1Eq2.slice(0, 3);
+435
+				const n3 = line2Eq1.slice(0, 3);
+436
+				const n4 = line2Eq2.slice(0, 3);
+437
+				const dir1 = crossProduct(n1, n2);
+438
+				const dir2 = crossProduct(n3, n4);
+439
+				const norm1 = Math.hypot(...dir1);
+440
+				const norm2 = Math.hypot(...dir2);
+441
+				if (norm1 < 1e-10 || norm2 < 1e-10)
+442
+					return { hasIntersection: false, result: "INVALID LINE DIRECTION VECTOR" };
+443
+				const unitDir1 = dir1.map(v => v / norm1);
+444
+				const unitDir2 = dir2.map(v => v / norm2);
+445
+				/* --- parallel? --- */
+446
+				const dot = unitDir1.reduce((s, v, i) => s + v * unitDir2[i], 0);
+447
+				if (Math.abs(Math.abs(dot) - 1) < 1e-10)
+448
+					return { hasIntersection: false, result: "PARALLEL LINES" };
+449
+				/* --- find a point on each line --- */
+450
+				const A1 = [n1, n2];
+451
+				const b1 = [line1Eq1[3], line1Eq2[3]];
+452
+				const A2 = [n3, n4];
+453
+				const b2 = [line2Eq1[3], line2Eq2[3]];
+454
+				let p1, p2;
+455
+				try {
+456
+					const reducedA1 = A1.map(r => r.slice(0, 2));
+457
+					const reducedA2 = A2.map(r => r.slice(0, 2));
+458
+					const xy1 = solveEquationSystem(reducedA1, b1);
+459
+					const xy2 = solveEquationSystem(reducedA2, b2);
+460
+					if (xy1 && xy2) {
+461
+						p1 = [...xy1, 0];
+462
+						p2 = [...xy2, 0];
+463
+					} else {
+464
+						const redA1xz = [[A1[0][0], A1[0][2]], [A1[1][0], A1[1][2]]];
+465
+						const redA2xz = [[A2[0][0], A2[0][2]], [A2[1][0], A2[1][2]]];
+466
+						const xz1 = solveEquationSystem(redA1xz, b1);
+467
+						const xz2 = solveEquationSystem(redA2xz, b2);
+468
+						if (xz1 && xz2) {
+469
+							p1 = [xz1[0], 0, xz1[1]];
+470
+							p2 = [xz2[0], 0, xz2[1]];
+471
+						} else {
+472
+							const redA1yz = [[A1[0][1], A1[0][2]], [A1[1][1], A1[1][2]]];
+473
+							const redA2yz = [[A2[0][1], A2[0][2]], [A2[1][1], A2[1][2]]];
+474
+							const yz1 = solveEquationSystem(redA1yz, b1);
+475
+							const yz2 = solveEquationSystem(redA2yz, b2);
+476
+							if (yz1 && yz2) {
+477
+								p1 = [0, yz1[0], yz1[1]];
+478
+								p2 = [0, yz2[0], yz2[1]];
+479
+							} else
+480
+								return { hasIntersection: false, result: "COULD NOT DETERMINE LINE POINTS" };
+481
+						}
+482
+					}
+483
+				} catch (e) {
+484
+					return { hasIntersection: false, result: "ERROR COMPUTING LINE POINTS: " + e.message };
+485
+				}
+486
+				/* --- closest points on each line --- */
+487
+				try {
+488
+					const A = [
+489
+						[
+490
+							unitDir1.reduce((s, v) => s + v * v, 0),
+491
+							-unitDir1.reduce((s, v, i) => s + v * unitDir2[i], 0)
+492
+						],
+493
+						[
+494
+							-unitDir1.reduce((s, v, i) => s + v * unitDir2[i], 0),
+495
+							unitDir2.reduce((s, v) => s + v * v, 0)
+496
+						]
+497
+					];
+498
+					const dp = p2.map((v, i) => v - p1[i]);
+499
+					const b = [
+500
+						unitDir1.reduce((s, v, i) => s + v * dp[i], 0),
+501
+						-unitDir2.reduce((s, v, i) => s + v * dp[i], 0)
+502
+					];
+503
+					let t;
+504
+					try {
+505
+						const Ainv = Matrix.inverse2x2(A);
+506
+						t = Matrix.multiply(Ainv, [[b[0]], [b[1]]]).map(r => r[0]);
+507
+					} catch {
+508
+						return { hasIntersection: false, result: "PARALLEL LINES DETECTED" };
+509
+					}
+510
+					const cp1 = p1.map((v, i) => v + t[0] * unitDir1[i]);
+511
+					const cp2 = p2.map((v, i) => v + t[1] * unitDir2[i]);
+512
+					const dist = Math.hypot(cp1[0] - cp2[0], cp1[1] - cp2[1], cp1[2] - cp2[2]);
+513
+					if (dist < 1e-5) {
+514
+						const inter = cp1.map((v, i) => (v + cp2[i]) / 2).map(v => Math.round(v * 1000) / 1000);
+515
+						return { hasIntersection: true, result: { x: inter[0], y: inter[1], z: inter[2] } };
+516
+					}
+517
+					return { hasIntersection: false, result: `SKEW LINES (DISTANCE: ${dist.toFixed(6)})` };
+518
+				} catch (e) {
+519
+					return { hasIntersection: false, result: "ERROR COMPUTING INTERSECTION: " + e.message };
+520
+				}
+521
+			}
+522
+			/* -------------------------------------------------------
+523
+			   SIMPLE 2×2 SOLVER
+524
+			------------------------------------------------------- */
+525
+			function solveEquationSystem(A, b) {
+526
+				const det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+527
+				if (Math.abs(det) < 1e-10) return null;
+528
+				const x = (b[0] * A[1][1] - b[1] * A[0][1]) / det;
+529
+				const y = (A[0][0] * b[1] - A[1][0] * b[0]) / det;
+530
+				return [x, y];
+531
+			}
+532
+			/* -------------------------------------------------------
+533
+			   VERIFY A FULL LINE CONFIGURATION
+534
+			------------------------------------------------------- */
+535
+			function verifyLineConfiguration(coeffs, numLines) {
+536
+				const equationsPerLine = 2;
+537
+				const coeffsPerEquation = 4;
+538
+				if (coeffs.length !== numLines * equationsPerLine * coeffsPerEquation)
+539
+					return { isValid: false, result: `EXPECTED ${numLines * equationsPerLine * coeffsPerEquation} COEFFICIENTS, GOT ${coeffs.length}` };
+540
+				for (let i = 0; i < coeffs.length; i += coeffsPerEquation) {
+541
+					if (Math.abs(coeffs[i]) + Math.abs(coeffs[i + 1]) + Math.abs(coeffs[i + 2]) === 0)
+542
+						return { isValid: false, result: `ZERO VECTOR IN EQUATION AT INDEX ${Math.floor(i / coeffsPerEquation)}` };
+543
+				}
+544
+				for (let i = 0; i < coeffs.length; i += 2 * coeffsPerEquation) {
+545
+					const eq1 = coeffs.slice(i, i + coeffsPerEquation);
+546
+					const eq2 = coeffs.slice(i + coeffsPerEquation, i + 2 * coeffsPerEquation);
+547
+					if (!isLinearlyIndependent(eq1.slice(0, 3), eq2.slice(0, 3))) {
+548
+						const lineIdx = Math.floor(i / (2 * coeffsPerEquation));
+549
+						return { isValid: false, result: `LINE ${lineIdx + 1} EQUATIONS ARE NOT LINEARLY INDEPENDENT` };
+550
+					}
+551
+				}
+552
+				const lines = [];
+553
+				for (let i = 0; i < numLines; i++) {
+554
+					const idx = i * equationsPerLine * coeffsPerEquation;
+555
+					lines.push([
+556
+						coeffs.slice(idx, idx + coeffsPerEquation),
+557
+						coeffs.slice(idx + coeffsPerEquation, idx + 2 * coeffsPerEquation)
+558
+					]);
+559
+				}
+560
+				const interPts = {};
+561
+				for (let i = 0; i < numLines; i++)
+562
+					for (let j = i + 1; j < numLines; j++) {
+563
+						const inter = findIntersection(lines[i][0], lines[i][1], lines[j][0], lines[j][1]);
+564
+						if (!inter.hasIntersection)
+565
+							return { isValid: false, result: `LINES ${i + 1} AND ${j + 1} DO NOT INTERSECT: ${inter.result}` };
+566
+						interPts[`${i},${j}`] = inter.result;
+567
+					}
+568
+				return { isValid: true, result: interPts };
+569
+			}
+570
+			/* -------------------------------------------------------
+571
+			   GENERATOR FOR ALL COEFFICIENT COMBINATIONS
+572
+			------------------------------------------------------- */
+573
+			function* generateCombinations(numCoeffs, values, startIdx = 0, maxIter = Infinity) {
+574
+				const comb = Array(numCoeffs).fill(values[0]);
+575
+				const idx = Array(numCoeffs).fill(0);
+576
+				const nVals = values.length;
+577
+				let cnt = 0;
+578
+				for (let i = 0; i < startIdx; i++) {
+579
+					let p = numCoeffs - 1;
+580
+					while (p >= 0) {
+581
+						idx[p]++;
+582
+						if (idx[p] < nVals) {
+583
+							comb[p] = values[idx[p]];
+584
+							break;
+585
+						}
+586
+						idx[p] = 0;
+587
+						comb[p] = values[0];
+588
+						p--;
+589
+					}
+590
+					if (p < 0) return;
+591
+					cnt++;
+592
+				}
+593
+				while (cnt < maxIter) {
+594
+					yield [...comb];
+595
+					let p = numCoeffs - 1;
+596
+					while (p >= 0) {
+597
+						idx[p]++;
+598
+						if (idx[p] < nVals) {
+599
+							comb[p] = values[idx[p]];
+600
+							break;
+601
+						}
+602
+						idx[p] = 0;
+603
+						comb[p] = values[0];
+604
+						p--;
+605
+					}
+606
+					if (p < 0) break;
+607
+					cnt++;
+608
+				}
+609
+			}
+610
+			/* -------------------------------------------------------
+611
+			   UI BINDINGS & CONTROL FLOW
+612
+			------------------------------------------------------- */
+613
+			const genBtn = document.getElementById('generateBtn');
+614
+			const stopBtn = document.getElementById('stopBtn');
+615
+			const dlBtn = document.getElementById('downloadBtn');
+616
+			const outText = document.getElementById('outputText');
+617
+			const logSec = document.getElementById('logSection');
+618
+			const progCont = document.getElementById('progressContainer');
+619
+			const progBar = document.getElementById('progressBar');
+620
+			const progTxt = document.getElementById('progressText');
+621
+			const statTxt = document.getElementById('statusText');
+622
+			let running = false;
+623
+			let valid = 0;
+624
+			let checked = 0;
+625
+			let results = "";
+626
+			let total = 0;
+627
+			let genIter = null;
+628
+			function log(msg) {
+629
+				const ts = new Date().toLocaleTimeString();
+630
+				const div = document.createElement('div');
+631
+				div.textContent = `[${ts}] ${msg}`;
+632
+				logSec.appendChild(div);
+633
+				logSec.scrollTop = logSec.scrollHeight;
+634
+			}
+635
+			async function generateConfigurations() {
+636
+				const nLines = +document.getElementById('numLines').value;
+637
+				const maxCfg = +document.getElementById('maxConfigs').value;
+638
+				const values = document.getElementById('coeffValues').value.split(',').map(v => +v.trim());
+639
+				const startIdx = +document.getElementById('startIndex').value;
+640
+				const maxIter = +document.getElementById('maxIterations').value;
+641
+				if (nLines < 2) return alert("ERROR: NUMBER OF LINES MUST BE AT LEAST 2");
+642
+				if (maxCfg < 1) return alert("ERROR: MAXIMUM CONFIGURATIONS MUST BE AT LEAST 1");
+643
+				if (values.some(isNaN)) return alert("ERROR: INVALID COEFFICIENT VALUES. ENTER COMMA-SEPARATED INTEGERS.");
+644
+				running = true;
+645
+				valid = 0;
+646
+				checked = 0;
+647
+				results = "";
+648
+				genBtn.disabled = true;
+649
+				stopBtn.disabled = false;
+650
+				dlBtn.disabled = true;
+651
+				progCont.style.display = "block";
+652
+				outText.innerHTML = "INITIALIZING GENERATION SEQUENCE...<span class='cursor-blink'></span>";
+653
+				const eqPerLine = 2;
+654
+				const coeffPerEq = 4;
+655
+				const coeffPerCfg = nLines * eqPerLine * coeffPerEq;
+656
+				total = values.length ** coeffPerCfg;
+657
+				log(`TOTAL POSSIBLE COMBINATIONS: ${total.toLocaleString()}`);
+658
+				log(`TARGET: ${Math.min(maxCfg, total).toLocaleString()} VALID CONFIGURATIONS`);
+659
+				const date = new Date().toISOString().replace('T', ' ').slice(0, 19);
+660
+				results += `# GENERATED 3D ${nLines}-LINE CONFIGURATIONS\n`;
+661
+				results += `# TIMESTAMP: ${date}\n`;
+662
+				results += `# FORMAT: EACH ENTRY REPRESENTS A COMPLETE ${nLines}-LINE CONFIGURATION\n`;
+663
+				results += `# COEFFICIENT VALUES: ${values}\n\n`;
+664
+				await new Promise(r => setTimeout(r, 500));
+665
+				outText.innerHTML = results + "<span class='cursor-blink'></span>";
+666
+				genIter = generateCombinations(coeffPerCfg, values, startIdx, maxIter);
+667
+				const batch = 1000;
+668
+				let last = Date.now();
+669
+				const step = async () => {
+670
+					if (!running) return finish("stopped");
+671
+					let b = 0;
+672
+					while (b < batch && running) {
+673
+						const { value: coeffs, done } = genIter.next();
+674
+						if (done) return finish("completed");
+675
+						checked++;
+676
+						b++;
+677
+						const now = Date.now();
+678
+						if (now - last > 500 || b >= batch) {
+679
+							updateProgress();
+680
+							last = now;
+681
+							await new Promise(r => setTimeout(r, 0));
+682
+						}
+683
+						const { isValid, result } = verifyLineConfiguration(coeffs, nLines);
+684
+						if (isValid) {
+685
+							results += `${nLines}CF${startIdx + valid}\n\n`;
+686
+							results += coeffs.join(" ") + "\n\n";
+687
+							if (typeof result === "object") {
+688
+								results += "# INTERSECTION POINTS:\n";
+689
+								Object.entries(result).forEach(([pair, p]) =>
+690
+									results += `# LINES ${+pair.split(',')[0] + 1} AND ${+pair.split(',')[1] + 1}: ${JSON.stringify(p)}\n`
+691
+								);
+692
+								results += "\n";
+693
+							}
+694
+							valid++;
+695
+							outText.innerHTML = results + "<span class='cursor-blink'></span>";
+696
+							outText.scrollTop = outText.scrollHeight;
+697
+							if (valid % 5 === 0)
+698
+								log(`VALID CONFIGURATIONS: ${valid} / COMBINATIONS CHECKED: ${checked.toLocaleString()}`);
+699
+							if (valid >= maxCfg) return finish("max-reached");
+700
+						}
+701
+					}
+702
+					setTimeout(step, 0);
+703
+				};
+704
+				step();
+705
+			}
+706
+			function updateProgress() {
+707
+				const pct = Math.min(100, (checked / total) * 100);
+708
+				progBar.style.width = `${pct}%`;
+709
+				progTxt.textContent = `${pct.toFixed(2)}% [${checked.toLocaleString()} OF ${total.toLocaleString()}]`;
+710
+				statTxt.textContent = `PROCESSING... FOUND ${valid} VALID CONFIGURATIONS`;
+711
+			}
+712
+			function finish(reason) {
+713
+				running = false;
+714
+				genBtn.disabled = false;
+715
+				stopBtn.disabled = true;
+716
+				dlBtn.disabled = false;
+717
+				let msg;
+718
+				if (reason === "completed") {
+719
+					msg = `PROCESS COMPLETE: ${valid} VALID CONFIGURATIONS / ${checked.toLocaleString()} COMBINATIONS CHECKED`;
+720
+					statTxt.textContent = "GENERATION COMPLETE";
+721
+				} else if (reason === "max-reached") {
+722
+					msg = `MAXIMUM REACHED: ${valid} VALID CONFIGURATIONS`;
+723
+					statTxt.textContent = "TARGET CONFIGURATIONS REACHED";
+724
+				} else {
+725
+					msg = `PROCESS TERMINATED: ${valid} VALID CONFIGURATIONS / ${checked.toLocaleString()} COMBINATIONS CHECKED`;
+726
+					statTxt.textContent = "GENERATION TERMINATED";
+727
+				}
+728
+				log(msg);
+729
+				if (valid > 0)
+730
+					outText.innerHTML = results + "\nPROCESS COMPLETE.<span class='cursor-blink'></span>";
+731
+				else
+732
+					outText.innerHTML = "NO VALID CONFIGURATIONS FOUND.\nPROCESS COMPLETE.<span class='cursor-blink'></span>";
+733
+			}
+734
+			function downloadResults() {
+735
+				if (valid === 0) return alert("ERROR: NO RESULTS TO DOWNLOAD.");
+736
+				const blob = new Blob([results], { type: 'text/plain' });
+737
+				const url = URL.createObjectURL(blob);
+738
+				const a = document.createElement('a');
+739
+				a.href = url;
+740
+				a.download = 'line_configurations.txt';
+741
+				document.body.appendChild(a);
+742
+				a.click();
+743
+				document.body.removeChild(a);
+744
+				URL.revokeObjectURL(url);
+745
+				log("DATA SAVED TO EXTERNAL STORAGE");
+746
+			}
+747
+			genBtn.addEventListener('click', generateConfigurations);
+748
+			stopBtn.addEventListener('click', () => { running = false; log("TERMINATION SIGNAL RECEIVED"); });
+749
+			dlBtn.addEventListener('click', downloadResults);
+750
+		</script>
+751
+	</body>
+752
+</html>

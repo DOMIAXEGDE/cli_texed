@@ -1,0 +1,505 @@
+<html lang="en">
+    <meta charset="UTF-8">
+    <title>3D Line Configuration Generator</title>
+        /* Bespin 1970s Computer Theme */
+            --main-bg: #2a211c;
+            --text-color: #ffb54d;
+            --accent: #cc723d;
+            --button-bg: #cc723d;
+            --console-bg: #151211;
+            --progress-bar: #f37735;
+        }
+        body {
+            line-height: 1.6;
+            background-color: var(--main-bg);
+            padding: 20px;
+                radial-gradient(rgba(255, 181, 77, 0.05) 2px, transparent 2px),
+            background-size: 50px 50px;
+            max-width: 1200px;
+        }
+        header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--dark-accent);
+        
+            color: var(--highlight);
+            letter-spacing: 2px;
+        }
+        h1 {
+        }
+        h2 {
+            border-bottom: 1px solid var(--dark-accent);
+        }
+        .container {
+            flex-wrap: wrap;
+        }
+        .parameters, .output-section {
+            min-width: 300px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5), 
+            border: 1px solid var(--dark-accent);
+        
+            flex: 2;
+        }
+        .form-group {
+        }
+        label {
+            margin-bottom: 5px;
+            color: var(--highlight);
+        
+            width: 100%;
+            background-color: var(--console-bg);
+            border: 1px solid var(--dark-accent);
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            border-color: var(--highlight);
+        }
+        button {
+            color: #000;
+            padding:.8em 1.5em;
+            border-radius: 3px;
+            font-size: 14px;
+            text-transform: uppercase;
+            box-shadow: 0 3px 0 var(--dark-accent);
+            font-family: var(--font-mono);
+        
+            background-color: var(--button-hover);
+            box-shadow: 0 5px 0 var(--dark-accent);
+        
+            transform: translateY(1px);
+        }
+        button:disabled {
+            color: rgba(255, 255, 255, 0.5);
+            transform: none;
+        }
+        .buttons-group {
+            gap: 10px;
+        }
+        .progress-container {
+            display: none;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+        
+            height: 20px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress {
+            background-color: var(--progress-bar);
+            transition: width 0.3s;
+                45deg, 
+                transparent 25%, 
+                rgba(255, 255, 255, .1) 50%, 
+                transparent 75%, 
+            );
+            animation: progress-animation 1s linear infinite;
+        
+            0% {
+            }
+                background-position: 20px 0;
+        }
+        #progressText, #statusText {
+            font-size: 14px;
+        
+            height: 400px;
+            padding: 15px;
+            border: 1px solid var(--dark-accent);
+            font-family: var(--font-mono);
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .log {
+            padding: 15px;
+            border: 1px solid var(--dark-accent);
+            max-height: 150px;
+            font-size: 14px;
+        
+            margin-bottom: 5px;
+            border-bottom: 1px dotted var(--dark-accent);
+        
+            font-weight: bold;
+            color: var(--highlight);
+        
+            padding: 10px;
+            color: var(--highlight);
+            margin-bottom: 10px;
+        }
+        /* CRT Monitor Effect */
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+                rgba(18, 16, 16, 0) 50%, 
+            );
+            z-index: 2;
+            opacity: 0.15;
+        
+            position: relative;
+        
+        @keyframes scanline {
+                transform: translateY(0);
+            100% {
+            }
+        
+            content: "";
+            top: 0;
+            right: 0;
+            background: rgba(255, 181, 77, 0.2);
+            animation: scanline 6s linear infinite;
+        }
+        /* Terminal Cursor Animation */
+            0%, 50% {
+            }
+                opacity: 1;
+        }
+        .cursor-blink {
+            width: 10px;
+            background: var(--console-text);
+            animation: cursor-blink 1s infinite;
+        }
+        @media (max-width: 768px) {
+                flex-direction: column;
+            
+                width: 100%;
+            }
+    </style>
+<body>
+        <h1>* 3D Line Configuration Generator *</h1>
+    </header>
+        <div class="parameters">
+            <div class="form-group">
+                <input type="number" id="numLines" min="2" value="2">
+            <div class="form-group">
+                <input type="number" id="maxConfigs" min="1" value="10">
+            <div class="form-group">
+                <input type="text" id="coeffValues" value="0,1,2">
+            <div class="form-group">
+                <input type="number" id="startIndex" min="0" value="0">
+            <div class="form-group">
+                <input type="number" id="maxIterations" min="1000" value="1000000">
+            <div class="buttons-group">
+                <button id="stopBtn" disabled>TERMINATE</button>
+            </div>
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                </div>
+            </div>
+        <div class="output-section">
+            <div id="outputText">READY.
+            <div class="log" id="logSection">
+                <div>AWAITING COMMAND INPUT...</div>
+        </div>
+    <script>
+        class Matrix {
+                const rows = A.length;
+                const result = Array(rows).fill().map(() => Array(cols).fill(0));
+                for (let i = 0; i < rows; i++) {
+                        result[i][j] = A[i][j] - B[i][j];
+                }
+                return result;
+            
+                const rowsA = A.length;
+                const rowsB = B.length;
+                
+                
+                
+                    for (let j = 0; j < colsB; j++) {
+                            result[i][j] += A[i][k] * B[k][j];
+                    }
+                
+            }
+            static transpose(A) {
+                const cols = A[0].length;
+                
+                    for (let j = 0; j < cols; j++) {
+                    }
+                
+            }
+            static inverse2x2(A) {
+                
+                
+                    [A[1][1] / det, -A[0][1] / det],
+                ];
+                return result;
+            
+                const factor = Math.pow(10, decimals);
+                    row.map(val => Math.round(val * factor) / factor)
+            }
+        // Utility functions
+            return [
+                vec1[2]*vec2[0] - vec1[0]*vec2[2],
+            ];
+        function isLinearlyIndependent(vec1, vec2) {
+            return cross.some(comp => Math.abs(comp) > 1e-10);
+        function findIntersection(line1Eq1, line1Eq2, line2Eq1, line2Eq2) {
+            const n1 = line1Eq1.slice(0, 3);
+            const n3 = line2Eq1.slice(0, 3);
+            
+            const dir1 = crossProduct(n1, n2);
+            
+            const norm1 = Math.sqrt(dir1[0]*dir1[0] + dir1[1]*dir1[1] + dir1[2]*dir1[2]);
+            
+                return { hasIntersection: false, result: "INVALID LINE DIRECTION VECTOR" };
+            
+            const unitDir2 = dir2.map(v => v / norm2);
+            // Check if lines are parallel (dot product of normalized directions = 1)
+            if (Math.abs(Math.abs(dotProduct) - 1) < 1e-10) {
+            }
+            // Find a point on each line
+            // and b is the vector of constants
+            const b1 = [line1Eq1[3], line1Eq2[3]];
+            const A2 = [n3, n4];
+            
+            
+                // Method 1: Try to find a point where z=0
+                const reducedA2 = A2.map(row => row.slice(0, 2));
+                // Solve for x and y
+                const xy2 = solveEquationSystem(reducedA2, b2, 2);
+                if (xy1 && xy2) {
+                    p2 = [...xy2, 0];
+                    // Method 2: Try to find a point where y=0
+                        [A1[0][0], A1[0][2]],
+                    ];
+                    const reducedA2_xz = [
+                        [A2[1][0], A2[1][2]]
+                    
+                    const xz2 = solveEquationSystem(reducedA2_xz, b2, 2);
+                    if (xz1 && xz2) {
+                        p2 = [xz2[0], 0, xz2[1]];
+                        // Method 3: Try to find a point where x=0
+                            [A1[0][1], A1[0][2]],
+                        ];
+                        const reducedA2_yz = [
+                            [A2[1][1], A2[1][2]]
+                        
+                        const yz2 = solveEquationSystem(reducedA2_yz, b2, 2);
+                        if (yz1 && yz2) {
+                            p2 = [0, yz2[0], yz2[1]];
+                            return { hasIntersection: false, result: "COULD NOT DETERMINE LINE POINTS" };
+                    }
+            } catch (e) {
+            }
+            // Now we have points p1 and p2 on lines 1 and 2 respectively
+            
+            try {
+                // Find t1, t2 that minimize the distance between the lines
+                // Build the matrix equation for finding the closest points
+                    [unitDir1[0]*unitDir1[0] + unitDir1[1]*unitDir1[1] + unitDir1[2]*unitDir1[2], 
+                    [-(unitDir1[0]*unitDir2[0] + unitDir1[1]*unitDir2[1] + unitDir1[2]*unitDir2[2]), 
+                ];
+                const dp = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]];
+                const b = [
+                    -(unitDir2[0]*dp[0] + unitDir2[1]*dp[1] + unitDir2[2]*dp[2])
+                
+                let t;
+                    const Ainv = Matrix.inverse2x2(A);
+                } catch (e) {
+                    return { hasIntersection: false, result: "PARALLEL LINES DETECTED" };
+                
+                const closestPoint1 = [
+                    p1[1] + t[0] * unitDir1[1],
+                ];
+                const closestPoint2 = [
+                    p2[1] + t[1] * unitDir2[1],
+                ];
+                // Calculate distance between closest points
+                const dy = closestPoint1[1] - closestPoint2[1];
+                const distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                // If distance is small enough, lines intersect
+                    // Use the midpoint as the intersection
+                        (closestPoint1[0] + closestPoint2[0]) / 2,
+                        (closestPoint1[2] + closestPoint2[2]) / 2
+                    
+                    const roundedIntersection = intersection.map(v => Math.round(v * 1000) / 1000);
+                    return { 
+                        result: { 
+                            y: roundedIntersection[1], 
+                        }
+                } else {
+                        hasIntersection: false, 
+                    };
+                
+                return { hasIntersection: false, result: "ERROR COMPUTING INTERSECTION: " + e.message };
+        }
+        function solveEquationSystem(A, b, numVars) {
+            if (A.length === 2 && A[0].length === 2) {
+                
+                    return null; // Singular matrix
+                
+                const y = (A[0][0] * b[1] - A[1][0] * b[0]) / det;
+                return [x, y];
+            
+            return null;
+        function verifyLineConfiguration(coeffs, numLines) {
+            const coeffsPerEquation = 4;
+            // Verify the size of coeffs is correct
+                return { isValid: false, result: `EXPECTED ${numLines * equationsPerLine * coeffsPerEquation} COEFFICIENTS, GOT ${coeffs.length}` };
+            
+            for (let i = 0; i < coeffs.length; i += coeffsPerEquation) {
+                    return { isValid: false, result: `ZERO VECTOR IN EQUATION AT INDEX ${Math.floor(i/coeffsPerEquation)}` };
+            }
+            // Check if the equations for each line are linearly independent
+                const eq1 = coeffs.slice(i, i+coeffsPerEquation);
+                
+                    const lineIdx = Math.floor(i / (2*coeffsPerEquation));
+                }
+            
+            const lines = [];
+                const startIdx = i * equationsPerLine * coeffsPerEquation;
+                const eq2 = coeffs.slice(startIdx+coeffsPerEquation, startIdx+2*coeffsPerEquation);
+            }
+            // Check pairwise intersections
+            
+                for (let j = i+1; j < numLines; j++) {
+                        lines[i][0], lines[i][1], lines[j][0], lines[j][1]
+                    
+                        return { isValid: false, result: `LINES ${i+1} AND ${j+1} DO NOT INTERSECT: ${intersection.result}` };
+                    
+                }
+            
+        }
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const logSection = document.getElementById('logSection');
+        const progressBar = document.getElementById('progressBar');
+        const statusText = document.getElementById('statusText');
+        let running = false;
+        let checkedCombinations = 0;
+        let totalPossible = 0;
+        // Add log message with typewriter effect
+            const timestamp = new Date().toLocaleTimeString();
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            // Auto-scroll to bottom
+        }
+        function* generateCombinations(numCoeffs, values, startIndex = 0, maxIterations = Infinity) {
+            const combination = Array(numCoeffs).fill(values[0]);
+            
+            let count = 0;
+            // Skip to startIndex
+                // Incrementing combination
+                while (pos >= 0) {
+                    if (indices[pos] < totalValues) {
+                        break;
+                    indices[pos] = 0;
+                    pos--;
+                
+                    // We've gone through all combinations
+                }
+                count++;
+            
+            while (count < maxIterations) {
+                
+                let pos = numCoeffs - 1;
+                    indices[pos]++;
+                        combination[pos] = values[indices[pos]];
+                    }
+                    combination[pos] = values[0];
+                }
+                if (pos < 0) {
+                    break;
+                
+            }
+        // Generate configurations
+            const numLines = parseInt(document.getElementById('numLines').value);
+            const valueString = document.getElementById('coeffValues').value;
+            const maxIterations = parseInt(document.getElementById('maxIterations').value);
+            // Validate inputs
+                alert("ERROR: NUMBER OF LINES MUST BE AT LEAST 2");
+            }
+            if (maxConfigs < 1) {
+                return;
+            
+            const values = valueString.split(',').map(val => parseInt(val.trim()));
+                alert("ERROR: INVALID COEFFICIENT VALUES. ENTER COMMA-SEPARATED INTEGERS.");
+            }
+            // Reset state
+            validConfigs = 0;
+            results = "";
+            // Update UI
+            stopBtn.disabled = false;
+            progressContainer.style.display = "block";
+            
+            const equationsPerLine = 2;
+            const coeffsPerConfig = numLines * equationsPerLine * coeffsPerEquation;
+            totalPossible = Math.pow(values.length, coeffsPerConfig);
+            log(`TARGET: ${Math.min(maxConfigs, totalPossible).toLocaleString()} VALID CONFIGURATIONS`);
+            // Generate header for output
+            results += `# GENERATED 3D ${numLines}-LINE CONFIGURATIONS\n`;
+            results += `# FORMAT: EACH ENTRY REPRESENTS A COMPLETE ${numLines}-LINE CONFIGURATION\n`;
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            generatorInstance = generateCombinations(coeffsPerConfig, values, startIndex, maxIterations);
+            // To avoid blocking the UI, process combinations in batches with setTimeout
+            let lastUpdateTime = Date.now();
+            const processNextBatch = async () => {
+                    finishGeneration("stopped");
+                }
+                let batchCount = 0;
+                while (batchCount < batchSize && running) {
+                    
+                        finishGeneration("completed");
+                    }
+                    checkedCombinations++;
+                    
+                    const now = Date.now();
+                        updateProgress();
+                        
+                        await new Promise(resolve => setTimeout(resolve, 0));
+                    
+                    const { isValid, result } = verifyLineConfiguration(coeffs, numLines);
+                    if (isValid) {
+                        results += `${numLines}CF${startIndex + validConfigs}\n\n`;
+                        
+                        if (typeof result === 'object') {
+                            for (const [linesPair, point] of Object.entries(result)) {
+                                results += `# LINES ${i+1} AND ${j+1}: ${JSON.stringify(point)}\n`;
+                            results += "\n";
+                        
+                        
+                        outputText.innerHTML = results + "<span class='cursor-blink'></span>";
+                        
+                        if (validConfigs % 5 === 0) {
+                        }
+                        // Check if we've reached the maximum
+                            finishGeneration("max-reached");
+                        }
+                }
+                // Schedule next batch
+            };
+            // Start processing
+        }
+        function updateProgress() {
+            progressBar.style.width = `${percent}%`;
+            statusText.textContent = `PROCESSING... FOUND ${validConfigs} VALID CONFIGURATIONS`;
+        // Finish generation process
+            running = false;
+            // Update UI
+            stopBtn.disabled = true;
+            
+            let message;
+                message = `PROCESS COMPLETE: ${validConfigs} VALID CONFIGURATIONS / ${checkedCombinations.toLocaleString()} COMBINATIONS CHECKED`;
+            } else if (reason === "max-reached") {
+                statusText.textContent = "TARGET CONFIGURATIONS REACHED";
+                message = `PROCESS TERMINATED: ${validConfigs} VALID CONFIGURATIONS / ${checkedCombinations.toLocaleString()} COMBINATIONS CHECKED`;
+            }
+            log(message);
+            // Final output
+                outputText.innerHTML = results + "\nPROCESS COMPLETE.<span class='cursor-blink'></span>";
+                outputText.innerHTML = "NO VALID CONFIGURATIONS FOUND.\nPROCESS COMPLETE.<span class='cursor-blink'></span>";
+        }
+        function downloadResults() {
+                alert("ERROR: NO RESULTS TO DOWNLOAD.");
+            }
+            // Create blob and download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.download = 'line_configurations.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            log("DATA SAVED TO EXTERNAL STORAGE");
+        // Event listeners
+        stopBtn.addEventListener('click', () => { 
+            log("TERMINATION SIGNAL RECEIVED");
+        downloadBtn.addEventListener('click', downloadResults);
+</body>

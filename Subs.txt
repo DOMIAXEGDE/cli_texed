@@ -1,0 +1,25 @@
+m.5				curseforge
+a.10				IMA membership	December to January
+m.10				verbosus.com LaTeX
+m.10				Google One Email and Storage (Premium)
+m.30				linkedIn Premium Career
+m.8				audible premium
+m.10				https://www.youtube.com
+m.20				openAI ChatGPT
+m.40				NordVPN
+m.20				Docker Desktop
+24 months.m.40			Unlimited Premium SIMO 24M	07400387106
+a.20				godaddy domalec.com	October to November
+a.20				godaddy texed.co.uk	June to July
+
+a.sum					243
+m.sum					243
+oDraft					100
+
+total.sum				343
+
+give.m					466
+give.a					0
+
+	priority:
+Heaven

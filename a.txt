@@ -1,0 +1,100 @@
+<html lang="en">
+  <meta charset="UTF-8">
+  <title>Surreal Instructional Philosophy</title>
+    /* Animated, shifting background for a surreal atmosphere */
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      align-items: flex-start;
+      height: 100vh;
+      animation: backgroundShift 12s ease infinite;
+    }
+	  padding-top: 100px;  /* Example: creates a 30px gap at the top */
+    @keyframes backgroundShift {
+      50% { background: linear-gradient(135deg, #4ca1af, #2c3e50); }
+    }
+    /* Basic container styling for the card faces */
+      background-color: rgba(133, 117, 78, 0.85);
+      border-radius: 15px;
+      text-align: center;
+      position: relative;
+    
+    .flip-card-front .container,
+      transform: none;
+    }
+    /* Title styling with interactive text shadow */
+      font-size: 3em;
+      color: #fff;
+      transition: text-shadow 0.4s ease;
+    
+      text-shadow: 4px 4px 12px rgba(0, 0, 0, 0.4);
+    
+    p {
+      color: #000;
+      transition: color 0.4s ease;
+    
+      color: #fff;
+    
+    .instruction {
+      margin-top: 30px;
+      transition: opacity 0.4s ease;
+    }
+    .instruction:hover {
+    }
+    /* Surreal floating shape for added visual intrigue */
+      position: absolute;
+      left: 50%;
+      height: 100px;
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+    @keyframes float {
+      50% { transform: translateX(-50%) translateY(50px) scale(1.2); }
+    }
+    /* Flip card container styling */
+      background-color: transparent;
+      perspective: 1000px; /* enables 3D perspective */
+    }
+    .flip-card-inner {
+      width: 100%;
+      transform-style: preserve-3d;
+    
+    .flip-card:hover .flip-card-inner,
+      transform: rotateY(180deg);
+    
+    .flip-card-back {
+      width: 100%;
+    }
+    .flip-card-back {
+      top: 0;
+    }
+    /* Additional styling for the back face algorithm content */
+      color: #fff;
+    }
+    .flip-card-back ol {
+      padding-left: 20%;
+      font-size: 1.2em;
+    
+      margin-bottom: 8px;
+  </style>
+<body>
+  <div class="flip-card" onclick="this.classList.toggle('flipped')">
+      <!-- Front face: original instructional content -->
+        <div class="container">
+          <h1>Instructional Philosophy</h1>
+          <p>if continuation is possible, continue: else stop</p>
+               consider stopping event propagation in its onclick function -->
+            Reflect on the depth of decision: the interplay of cessation and continuation.
+        </div>
+      <!-- Back face: the a,b learning algorithm -->
+        <div class="container">
+          <ol>
+            <li>implement concept using PHP</li>
+            <li>prove concept using PHP</li>
+            <li>Goto B</li>
+          <h2>B: execute</h2>
+            <li>construct novel concept definition</li>
+            <li>if required, construct proof of concept</li>
+            <li>Goto A</li>
+        </div>
+    </div>
+</body>
