@@ -1,0 +1,340 @@
+/* Vortextz‑Terminal — external stylesheet (2026) */
+:root {
+  /* Light theme palette */
+  --bg: #f6f7f9;
+  --fg: #1e1f21;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --border: #d0d4d9;
+  --section-bg: rgba(255, 255, 255, 0.65);
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --transition: 0.2s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121316;
+    --fg: #e4e6eb;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --border: #2d2f34;
+    --section-bg: rgba(25, 26, 30, 0.65);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Page structure and layout */
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  flex: 1;
+}
+
+/* Section styling for clear visual structure */
+.terminal-section {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  background: var(--section-bg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition);
+  position: relative;
+}
+
+.terminal-section:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.terminal-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.terminal-section-title::before {
+  content: '>';
+  opacity: 0.7;
+}
+
+/* Header styling */
+h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-subtitle {
+  font-size: 0.9rem;
+  opacity: 0.75;
+  margin: 0;
+}
+
+/* Command input area */
+.command-area {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+#cli {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  transition: all var(--transition);
+}
+
+#cli:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+#cliRun {
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+#cliRun:hover {
+  background: var(--accent-hover);
+}
+
+#cliRun:active {
+  transform: translateY(1px);
+}
+
+/* Output area */
+#cliOut {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1.2rem;
+  min-height: 180px;
+  max-height: 500px;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  overflow: auto;
+  white-space: pre-wrap;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Iframe preview */
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+#preview {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  min-height: 300px;
+  width: 100%;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+  background: var(--section-bg);
+}
+
+#preview:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+
+/* Scrollbars (WebKit) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--fg) 25%, transparent);
+  border-radius: 5px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--fg) 35%, transparent);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--fg) 25%, transparent) transparent;
+}
+
+/* Visual indicators for content sections */
+.content-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* Grid layout for multi-panel views */
+.terminal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* Utility classes */
+.hidden {
+  display: none !important;
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  html, body {
+    font-size: 14px;
+  }
+  
+  main {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+  
+  .terminal-section {
+    padding: 1.25rem;
+  }
+  
+  .terminal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .command-area {
+    flex-direction: column;
+  }
+  
+  #cliRun {
+    width: 100%;
+  }
+  
+  .header-container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Viewport height adjustments for better display */
+@media (min-height: 800px) {
+  #cliOut {
+    min-height: 220px;
+  }
+  
+  #preview {
+    min-height: 350px;
+  }
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+}

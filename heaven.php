@@ -200,15 +200,16 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Texed Terminal — CLI‑only</title>
-	<style>
+	<title>Terminal — CLI‑only</title>
+	<!--<style>
 		body{font-family:monospace;margin:1rem}
 		#cliOut{white-space:pre;border:1px solid #888;padding:6px;max-height:260px;overflow:auto}
 		#preview{width:100%;height:60vh;border:1px solid #888;margin-top:1rem;display:none}
-	</style>
+	</style>-->
+	<link rel="stylesheet" href="heaven.css">
 </head>
 <body>
-	<h1>Texed Terminal</h1>
+	<h1>Terminal</h1>
 	<input id="cli" placeholder="list | show N | open-blob N" size="40" autofocus>
 	<button id="cliRun">Run</button>
 	<pre id="cliOut"></pre>
